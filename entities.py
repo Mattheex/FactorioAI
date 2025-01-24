@@ -1,189 +1,145 @@
-import numpy as np
-import time
+from __future__ import annotations
 
-from var import *
+import time
+from collections import UserList
+
+import pygame
+
+import numpy as np
+
+from var import TOP, RIGHT, DOWN, LEFT, CELL_SIZE, ITEM_SIZE,SPEED
+
+
+def get_center(coor, size):
+    return coor + (np.array((size, size))) // 2
 
 
 class Case:
-    def __init__(self, name, speed=0, limit=0, direction="all") -> None:
-        self.items = []
-        self.then = time.time()
+    def __init__(self, game, coor, class_id=0, path="case.png", name="Nothing", direction=None):
+        self.game = game
+        self.size = CELL_SIZE
+        self.class_id = class_id
+        self.coor = coor * np.array((self.size, self.size))
         self.name = name
-        self.speed = speed
-        self.limit = limit
         self.direction = direction
+        self.img = pygame.image.load(path).convert_alpha()
+        self.img = pygame.transform.scale(self.img, (self.size, self.size))
 
-    def itemNumber(self):
-        return len(self.items)
+        self.map = {
+            LEFT: np.array([-1, 0]),
+            TOP: np.array([0, -1]),
+            DOWN: np.array([0, 1]),
+            RIGHT: np.array([1, 0]),
+        }
+        self.speed = SPEED
 
-    def itemsAvailable(self):
-        return filter(lambda x: x.canMove(), self.items)
+        if direction is not None:
+            self.speed_vector = self.map[direction] * np.array((self.speed, self.speed))
 
-    def lenAvailables(self):
-        l = 0
-        for item in self.items:
-            if item.canMove():
-                l += 1
-        return l
+            if direction != TOP:
+                rotate_map = {
+                    LEFT: 90,
+                    DOWN: 180,
+                    RIGHT: -90
+                }
+                self.img = pygame.transform.rotate(self.img, rotate_map[direction])
 
-    def getItem(self):
-        for item in self.items:
-            if item.canMove():
-                self.items.remove(item)
-                item.move()
-                return item
-
-    def connectedToSupplier(self, nearby, center_pos, cls, canGet=None):
-        if self.direction == "all":
-            allSupplier = []
-            for row in range(nearby.shape[0]):
-                for col in range(nearby.shape[1]):
-                    if (
-                        (row != center_pos[0] or col != center_pos[1])
-                        and row != col
-                        and nearby[row, col].name == cls
-                    ):
-                        allSupplier.append(nearby[row, col])
-
-            return allSupplier
-        else:
-            start = center_pos + canGet
-            if nearby[start[0],start[1]].canSupply(start, center_pos):
-                print(f"{nearby[*start]}")
-                return nearby[*start].name == cls, nearby[*start]
-
-        return False,False
-
-    def action(self):
-        duration_in_s = time.time() - self.then
-        return duration_in_s * 1000 > self.speed
-
-    def turn(self, nearby, center_pos):
+    def turn(self):
         pass
-    
-    def canSupply(self, start, center_pos):
-        return False
 
+    def get_center(self):
+        return get_center(self.coor, self.size)
 
-class Dirt(Case):
-    def __init__(self) -> None:
-        super().__init__("dirt")
+    def distance(self, item):
+        center_obj = self.get_center()
+        center_item = item.get_center()
+        return np.linalg.norm(center_obj - center_item)
 
     def __str__(self) -> str:
         return self.name
 
 
-class Mine(Case):
-    def __init__(self) -> None:
-        super().__init__("mine", 500, 100)
-
-    def canSupply(self, start, center_pos):
-        return True
-
-    def turn(self, nearby, center_pos):
-        if self.action() and self.itemNumber() < self.limit:
-            self.then = time.time()
-            self.items.append(Item())
-
-    def __str__(self) -> str:
-        return f"{self.name} {self.itemNumber()}"
-
-
 class Belt(Case):
-    def __init__(self, directionStart, directionEnd) -> None:
-        super().__init__("belt", 600, 2, directionStart)
-        
-        self.directionStart = directionStart
-        self.directionEnd = directionEnd
-
-        self.get = np.array([0, 0])
-        self.give = np.array([0, 0])
-
-        if directionStart == LEFT:
-            self.get[0] = 0
-            self.get[1] = -1
-        elif directionStart == TOP:
-            self.get[0] = -1
-            self.get[1] = 0
-        elif directionStart == DOWN:
-            self.get[0] = 1
-            self.get[1] = 0
-        elif directionStart == RIGHT:
-            self.get[0] = 0
-            self.get[1] = 1
-            
-        if directionEnd == LEFT:
-            self.give[0] = 0
-            self.give[1] = -1
-        elif directionEnd == TOP:
-            self.give[0] = -1
-            self.give[1] = 0
-        elif directionEnd == DOWN:
-            self.give[0] = 1
-            self.give[1] = 0
-        elif directionEnd == RIGHT:
-            self.give[0] = 0
-            self.give[1] = 1
-
-    def canSupply(self, start, center_pos):
-        return ((center_pos - start) == self.give).all()
-
-    def turn(self, nearby, center_pos):
-        if self.action():
-            self.then = time.time()
-
-            for cls in ["mine", "belt"]:
-                isSupplier, supplier = self.connectedToSupplier(
-                    nearby, center_pos, cls, self.get
-                )
-
-                print(isSupplier)
-                if isSupplier:
-                    print(f"{supplier} {supplier.lenAvailables()}")
-
-                if (
-                    isSupplier
-                    and supplier.lenAvailables() > 0
-                    and self.itemNumber() < self.limit
-                ):
-                    item = supplier.getItem()
-                    self.items.append(item)
+    def __init__(self, game, coor, direction) -> None:
+        super().__init__(game, coor, 1, "belt.png", "Belt", direction)
+        self.items = []
 
     def __str__(self) -> str:
-        return f"{self.name} {self.itemNumber()} {self.directionStart[0]} -> {self.directionEnd[0]}"
+        return f"{self.name} {self.coor}"
 
 
-class Chest(Case):
-    def __init__(self) -> None:
-        super().__init__("chest", 1000, 20)
+class Maker(Case):
+    def __init__(self, game, coor, class_id, path, name, direction=None, prod_time=1000) -> None:
+        super().__init__(game, coor, class_id, path, name, direction)
+        self.then = time.time()
+        self.prod_time = prod_time
 
-    def canSupply(self, start, center_pos):
-        return False
+    def action(self) -> bool:
+        duration_in_s = time.time() - self.then
+        return duration_in_s * 1000 > self.prod_time
 
-    def turn(self, nearby, center_pos):
+
+class Supplier(Maker):
+    def __init__(self, game, coor, direction) -> None:
+        super().__init__(game, coor, 2, "supplier.png", "Supplier", direction, 1000)
+
+    def turn(self) -> None:
         if self.action():
             self.then = time.time()
-
-            allSupplier = self.connectedToSupplier(nearby, center_pos, "belt")
-
-            for supplier in allSupplier:
-                if supplier.lenAvailables() > 0 and self.itemNumber() < self.limit:
-                    item = supplier.getItem()
-                    self.items.append(item)
+            item = Item()
+            item.set_center(self.get_center())
+            item.set_vector(self.speed_vector)
+            self.game.items.append(item)
 
     def __str__(self) -> str:
-        return f"{self.name} {self.itemNumber()}"
+        return f"{self.name} {self.coor}"
+
+
+class Vendor(Case):
+    def __init__(self, game, coor, direction) -> None:
+        super().__init__(game, coor, 3, "vendor.png", "Vendor")
+
+    def sell(self, item):
+        self.game.earn += 10
+        del item
+
+    def __str__(self) -> str:
+        return f"{self.name} {self.coor}"
 
 
 class Item:
-    def __init__(self):
-        self.speed = 1000
-        self.then = time.time()
+    def __init__(self, coor=(0, 0)) -> None:
+        self.class_id = 4
+        self.id = np.random.randint(100)
+        self.coor = coor
+        self.vector = None
+        self.size = ITEM_SIZE
+        self.stock = False
+        self.overlap = False
+        self.action = False
+        self.img = pygame.image.load("gold.png").convert_alpha()
+        self.img = pygame.transform.scale(self.img, (self.size, self.size))
 
-    def canMove(self):
-        duration_in_s = time.time() - self.then
-        print(duration_in_s)
-        return duration_in_s * 1000 > self.speed
+    def move(self, delta) -> None:
+        if not self.stock and self.vector is not None:
+            if self.vector[0] == 50:
+                pass
+            self.coor = self.coor + self.vector * delta / 1000
 
-    def move(self):
-        self.then = time.time()
+    def set_vector(self, vector):
+        self.vector = vector
+
+    def set_center(self, center):
+        self.coor = center - self.size // 2
+
+    def get_center(self):
+        return get_center(self.coor, self.size)
+
+    def __str__(self):
+        return f'item {self.id} {self.coor} {self.vector} {self.stock} {self.overlap}'
+
+
+class ItemList(UserList):
+    def remove(self, s=None):
+        super().remove(s)
+        del s
