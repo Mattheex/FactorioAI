@@ -1,2 +1,5 @@
 .vscode/
-_pycache_/
+_pycache_
+MCTS/__pycache__
+.vscode
+__pycache__

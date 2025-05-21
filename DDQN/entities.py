@@ -7,7 +7,7 @@ import pygame
 
 import numpy as np
 
-from var import TOP, RIGHT, DOWN, LEFT, CELL_SIZE, ITEM_SIZE,SPEED
+from var import TOP, RIGHT, DOWN, LEFT, CELL_SIZE, ITEM_SIZE, SPEED,RENDER
 
 
 def get_center(coor, size):
@@ -22,8 +22,10 @@ class Case:
         self.coor = coor * np.array((self.size, self.size))
         self.name = name
         self.direction = direction
-        self.img = pygame.image.load(path).convert_alpha()
-        self.img = pygame.transform.scale(self.img, (self.size, self.size))
+        
+        if RENDER == 'human':
+            self.img = pygame.image.load(path).convert_alpha()
+            self.img = pygame.transform.scale(self.img, (self.size, self.size))
 
         self.map = {
             LEFT: np.array([-1, 0]),
@@ -42,9 +44,11 @@ class Case:
                     DOWN: 180,
                     RIGHT: -90
                 }
-                self.img = pygame.transform.rotate(self.img, rotate_map[direction])
+                
+                if RENDER == 'human':
+                    self.img = pygame.transform.rotate(self.img, rotate_map[direction])
 
-    def turn(self):
+    def turn(self,delta):
         pass
 
     def get_center(self):
@@ -52,8 +56,11 @@ class Case:
 
     def distance(self, item):
         center_obj = self.get_center()
-        center_item = item.get_center()
-        return np.linalg.norm(center_obj - center_item)
+        if isinstance(item, np.ndarray):
+            center_item = item
+        else:
+            center_item = item.get_center()
+        return np.linalg.vector_norm(center_obj - center_item)
 
     def __str__(self) -> str:
         return self.name
@@ -65,27 +72,28 @@ class Belt(Case):
         self.items = []
 
     def __str__(self) -> str:
-        return f"{self.name} {self.coor}"
+        return f"{self.name} center {self.get_center()}, origin {self.coor}"
 
 
 class Maker(Case):
     def __init__(self, game, coor, class_id, path, name, direction=None, prod_time=1000) -> None:
         super().__init__(game, coor, class_id, path, name, direction)
         self.then = time.time()
+        self.duration = 0
         self.prod_time = prod_time
 
-    def action(self) -> bool:
-        duration_in_s = time.time() - self.then
-        return duration_in_s * 1000 > self.prod_time
+    def action(self,delta) -> bool:
+        self.duration += delta
+        return self.duration > self.prod_time
 
 
 class Supplier(Maker):
     def __init__(self, game, coor, direction) -> None:
         super().__init__(game, coor, 2, "supplier.png", "Supplier", direction, 1000)
 
-    def turn(self) -> None:
-        if self.action():
-            self.then = time.time()
+    def turn(self,delta) -> None:
+        if self.action(delta):
+            self.duration = 0
             item = Item()
             item.set_center(self.get_center())
             item.set_vector(self.speed_vector)
@@ -117,8 +125,10 @@ class Item:
         self.stock = False
         self.overlap = False
         self.action = False
-        self.img = pygame.image.load("gold.png").convert_alpha()
-        self.img = pygame.transform.scale(self.img, (self.size, self.size))
+        
+        if RENDER == 'human':
+            self.img = pygame.image.load("gold.png").convert_alpha()
+            self.img = pygame.transform.scale(self.img, (self.size, self.size))
 
     def move(self, delta) -> None:
         if not self.stock and self.vector is not None:

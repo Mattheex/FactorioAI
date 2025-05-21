@@ -13,3 +13,4 @@ SPEED = round(100 * WIDTH / 600)
 FONT_SIZE = 24  # Font size for text
 BACKGROUND_COLOR = (30, 30, 30)  # Background color for window
 TEXT_COLOR = (255, 255, 255)  # Text color for numbers
+RENDER = None
