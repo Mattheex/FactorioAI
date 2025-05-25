@@ -7,17 +7,16 @@ from var import CELL_NUMBER, TOP, RIGHT, DOWN, LEFT
 
 
 class Case:
-    def __init__(self, coor, empty=False) -> None:
+    def __init__(self, coor,id=None,direction=None) -> None:
         self.name = "Nothing"
         self.coor = coor
-        self.id = 0
-        self.empty = empty
+        self.id = id
 
     def details(self) -> str:
         return f"{self.name} {self.coor}"
 
     def get_empty(self):
-        return True
+        return self.id == -1
 
     def __str__(self) -> str:
         return f"{self.name[0]}o"
@@ -55,15 +54,15 @@ class Machine:
 
 
 class Belt(Machine):
-    def __init__(self, coor, direction) -> None:
-        super().__init__("Belt", coor, 1, 1, direction)
+    def __init__(self, coor, id,direction) -> None:
+        super().__init__("Belt", coor, id, 1, direction)
 
 
 class Supplier(Machine):
-    def __init__(self, coor, direction) -> None:
-        super().__init__("Supplier", coor, 2, 1, direction)
+    def __init__(self, coor, id,direction) -> None:
+        super().__init__("Supplier", coor, id, 1, direction)
 
 
 class Vendor(Machine):
-    def __init__(self, coor, direction) -> None:
-        super().__init__("Vendor", coor, 3, 1)
+    def __init__(self, coor, id,direction) -> None:
+        super().__init__("Vendor", coor, id, 1)
