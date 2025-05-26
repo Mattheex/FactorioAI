@@ -1,4 +1,5 @@
 import copy
+import json
 import os
 import threading
 from random import choice
@@ -37,15 +38,23 @@ class Board:
         
         # Pre-calculate the product list size to avoid repeated len() calls
         product_id = 0
-        
+        dict = []
         for m in machine:
             if m == Case or m == Vendor:
                 product.append({"id": product_id, "entity": m, "direction": None})
+                dict.append({"id":product_id,"entity": m.__name__, "direction": None})
                 product_id += 1
             else:
                 for d in direction:
                     product.append({"id": product_id, "entity": m, "direction": d})
+                    dict.append({"id":product_id,"entity": m.__name__, "direction": d})
                     product_id += 1
+
+        """json_object = json.dumps(dict, indent=4)
+
+        # Writing to sample.json
+        with open("sample.json", "w") as outfile:
+            outfile.write(json_object)"""
         return product
 
     def terminate(self) -> bool:
@@ -85,6 +94,28 @@ class Board:
                 s.write(f"{self.board[x + y * CELL_NUMBER].id} ")
             s.write("\n")
         return s.getvalue()
+    
+    def board_from_index(self, b_index: str):
+        """Create a board from a string representation of indices"""
+        # Split the input string into lines
+
+        reward = b_index.split("\n")[0].split("=")[1]
+        lines = b_index.split("\n")[1::]
+        
+        for y, line in enumerate(lines):
+            for x, cell_id in enumerate(line.split()):
+                if cell_id.isdigit():
+                    #print(f"Processing cell at ({x}, {y}): {cell_id}")
+                    cell_id = int(cell_id)
+                    if cell_id >= len(self.all_items):
+                        raise ValueError(f"Invalid cell ID {cell_id} at position ({x}, {y})")
+                    item = self.all_items[cell_id]
+                    self.add(item["entity"], x + y * CELL_NUMBER, id=cell_id, direction=item["direction"])
+
+
+        print(self)
+        excepted = self.total_reward()
+        print(f"Expected reward: {reward}, Calculated reward: {excepted}")
 
     def total_reward(self):
         """Calculate the total reward for the current board state"""
@@ -97,9 +128,10 @@ class Board:
                 r = self.reward(path, start_cell, length=self.length_penality)
                 if r != -1:
                     rewards.append(r)
+                
                     
             # Count non-empty cells for penalty
-            if not start_cell.get_empty():
+            if type(start_cell) is not Case:
                 total_cell_penalty += 0.25
                 
         return sum(rewards) - total_cell_penalty
@@ -108,7 +140,7 @@ class Board:
         """Calculate reward for a path starting from a supplier"""
         # Iterative implementation to avoid stack overflow for long paths
         max_path_length = CELL_NUMBER * CELL_NUMBER
-        
+        #print("path", path, "previous", previous, "length", length, "reward", reward)
         # Use a loop instead of recursion
         while True:
             # Check boundary conditions
@@ -182,11 +214,9 @@ class Board:
         for i in range(num_boards):
             board = Board(all_items=self.all_items)
             while not board.terminate():
-                possible_actions = board.actions()
-                if possible_actions:  # Make sure we have valid actions
-                    board = choice(possible_actions)
-                else:
-                    break  # No valid actions available
+                r_item = choice(board.all_items)
+                r_pos = choice(board.get_empty_pos())
+                board.add(r_item["entity"], r_pos, id=r_item["id"], direction=r_item["direction"])
 
             # Add to buffer instead of writing directly
             reward = board.total_reward()
@@ -248,6 +278,26 @@ class Board:
 
         print(f"All {total_boards} boards generated successfully")
 
+def read(b):
+    """Read the generated game file and return its content"""
+    if not os.path.exists("game.txt"):
+        raise FileNotFoundError("The game file does not exist. Please run the game first.")
+
+    #reward = None
+    index_board = ""
+    with open("game.txt", "r") as f:
+        for i,line in enumerate(f):
+            line = line.strip()
+            if line.startswith("reward="):
+                if index_board != "":
+                    b.board_from_index(index_board)
+                    index_board = ""
+                #reward = line.split("=")[1]
+            index_board += line + "\n"
+            if i > 10:
+                break
+        b.board_from_index(index_board)
+
 
 if __name__ == "__main__":
     import time
@@ -259,10 +309,16 @@ if __name__ == "__main__":
     # Use optimal number of threads based on CPU cores
     import multiprocessing
     num_cores = multiprocessing.cpu_count()
+
+    mode = "write"
+
+    if mode == "read":
+        read(b)
+    else:
     
-    print(f"Starting board generation using {num_cores} threads...")
-    b.game(num_threads=num_cores, total_boards=10000)
-    
-    # Report execution time
-    elapsed_time = time.time() - start_time
-    print(f"Execution completed in {elapsed_time:.2f} seconds")
+        print(f"Starting board generation using {num_cores} threads...")
+        b.game(num_threads=num_cores, total_boards=100000)
+        
+        # Report execution time
+        elapsed_time = time.time() - start_time
+        print(f"Execution completed in {elapsed_time:.2f} seconds")

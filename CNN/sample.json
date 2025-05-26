@@ -1,0 +1,52 @@
+[
+    {
+        "id": 0,
+        "entity": "Case",
+        "direction": null
+    },
+    {
+        "id": 1,
+        "entity": "Supplier",
+        "direction": "Down"
+    },
+    {
+        "id": 2,
+        "entity": "Supplier",
+        "direction": "Right"
+    },
+    {
+        "id": 3,
+        "entity": "Supplier",
+        "direction": "Top"
+    },
+    {
+        "id": 4,
+        "entity": "Supplier",
+        "direction": "Left"
+    },
+    {
+        "id": 5,
+        "entity": "Vendor",
+        "direction": null
+    },
+    {
+        "id": 6,
+        "entity": "Belt",
+        "direction": "Down"
+    },
+    {
+        "id": 7,
+        "entity": "Belt",
+        "direction": "Right"
+    },
+    {
+        "id": 8,
+        "entity": "Belt",
+        "direction": "Top"
+    },
+    {
+        "id": 9,
+        "entity": "Belt",
+        "direction": "Left"
+    }
+]
