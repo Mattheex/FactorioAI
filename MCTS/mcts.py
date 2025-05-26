@@ -32,7 +32,7 @@ class MCTS:
 
         self.root = TreeNode(initial_state)
 
-        iterations = 100
+        iterations = 200
         # Perform the MCTS iterations
         for i in range(iterations):  # Number of iterations
             if i % 50 == 0 and self.debug:

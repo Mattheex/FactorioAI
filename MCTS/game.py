@@ -74,7 +74,7 @@ class Board:
                     if r != -1:
                         t_r.append(r)
             if not start_cell.get_empty():
-                total_cell += 0.25
+                total_cell += 0.05
         return sum(t_r) - total_cell
 
     def reward(self, path, previous, length, reward=0.0):
@@ -89,9 +89,9 @@ class Board:
         if type(new_cell) == Supplier:
             return -1
         if type(new_cell) == Case:
-            return reward
+            return 0
         if type(new_cell) == Vendor:
-            return 50 / length + reward
+            return 1
         elif type(new_cell) == Belt:
             if type(previous) == Supplier:
                 reward += 0.5

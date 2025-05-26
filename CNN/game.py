@@ -95,27 +95,31 @@ class Board:
             s.write("\n")
         return s.getvalue()
     
-    def board_from_index(self, b_index: str):
-        """Create a board from a string representation of indices"""
-        # Split the input string into lines
-
+    def board_to_index_w_reward(self,b_index:str):
         reward = b_index.split("\n")[0].split("=")[1]
         lines = b_index.split("\n")[1::]
-        
-        for y, line in enumerate(lines):
-            for x, cell_id in enumerate(line.split()):
-                if cell_id.isdigit():
-                    #print(f"Processing cell at ({x}, {y}): {cell_id}")
-                    cell_id = int(cell_id)
-                    if cell_id >= len(self.all_items):
-                        raise ValueError(f"Invalid cell ID {cell_id} at position ({x}, {y})")
-                    item = self.all_items[cell_id]
-                    self.add(item["entity"], x + y * CELL_NUMBER, id=cell_id, direction=item["direction"])
-
-
+        self.board_from_index(lines)
         print(self)
         excepted = self.total_reward()
         print(f"Expected reward: {reward}, Calculated reward: {excepted}")
+
+    
+    def board_from_index(self, lines:list[str]):
+        """Create a board from a string representation of indices"""
+        # Split the input string into lines
+
+        
+        for y, line in enumerate(lines):
+            if type(line) is str:
+                line  = line.split()
+            for x, cell_id in enumerate(line):
+                #print(f"Processing cell at ({x}, {y}): {cell_id}")
+                cell_id = int(cell_id)
+                if cell_id >= len(self.all_items):
+                    raise ValueError(f"Invalid cell ID {cell_id} at position ({x}, {y})")
+                item = self.all_items[cell_id]
+                self.add(item["entity"], x + y * CELL_NUMBER, id=cell_id, direction=item["direction"])
+        
 
     def total_reward(self):
         """Calculate the total reward for the current board state"""
@@ -132,7 +136,7 @@ class Board:
                     
             # Count non-empty cells for penalty
             if type(start_cell) is not Case:
-                total_cell_penalty += 0.25
+                total_cell_penalty += 0.05
                 
         return sum(rewards) - total_cell_penalty
 
@@ -154,9 +158,9 @@ class Board:
             if isinstance(new_cell, Supplier):
                 return -1
             elif isinstance(new_cell, Case):
-                return reward
+                return 0
             elif isinstance(new_cell, Vendor):
-                return 50 / length + reward
+                return 1
             elif isinstance(new_cell, Belt):
                 # Handle belt connections
                 if isinstance(previous, Supplier):
@@ -290,13 +294,13 @@ def read(b):
             line = line.strip()
             if line.startswith("reward="):
                 if index_board != "":
-                    b.board_from_index(index_board)
+                    b.board_to_index_w_reward(index_board)
                     index_board = ""
                 #reward = line.split("=")[1]
             index_board += line + "\n"
             if i > 10:
                 break
-        b.board_from_index(index_board)
+        b.board_to_index_w_reward(index_board)
 
 
 if __name__ == "__main__":
