@@ -42,19 +42,19 @@ class Board:
         for m in machine:
             if m == Case or m == Vendor:
                 product.append({"id": product_id, "entity": m, "direction": None})
-                dict.append({"id":product_id,"entity": m.__name__, "direction": None})
+                dict.append({"id":product_id,"entity": m.__name__, "direction": None,"str":str(m(0,0,None))})
                 product_id += 1
             else:
                 for d in direction:
                     product.append({"id": product_id, "entity": m, "direction": d})
-                    dict.append({"id":product_id,"entity": m.__name__, "direction": d})
+                    dict.append({"id":product_id,"entity": m.__name__, "direction": d,"str":str(m(0,0,d))})
                     product_id += 1
 
-        """json_object = json.dumps(dict, indent=4)
+        json_object = json.dumps(dict, indent=4)
 
         # Writing to sample.json
         with open("sample.json", "w") as outfile:
-            outfile.write(json_object)"""
+            outfile.write(json_object)
         return product
 
     def terminate(self) -> bool:
@@ -314,9 +314,10 @@ if __name__ == "__main__":
     import multiprocessing
     num_cores = multiprocessing.cpu_count()
 
-    mode = "write"
-
-    if mode == "read":
+    mode = "none"
+    if mode == "none":
+        pass
+    elif mode == "read":
         read(b)
     else:
     

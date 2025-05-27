@@ -2,51 +2,61 @@
     {
         "id": 0,
         "entity": "Case",
-        "direction": null
+        "direction": null,
+        "str": "No"
     },
     {
         "id": 1,
         "entity": "Supplier",
-        "direction": "Down"
+        "direction": "Down",
+        "str": "Sv"
     },
     {
         "id": 2,
         "entity": "Supplier",
-        "direction": "Right"
+        "direction": "Right",
+        "str": "S>"
     },
     {
         "id": 3,
         "entity": "Supplier",
-        "direction": "Top"
+        "direction": "Top",
+        "str": "S^"
     },
     {
         "id": 4,
         "entity": "Supplier",
-        "direction": "Left"
+        "direction": "Left",
+        "str": "S<"
     },
     {
         "id": 5,
         "entity": "Vendor",
-        "direction": null
+        "direction": null,
+        "str": "Vo"
     },
     {
         "id": 6,
         "entity": "Belt",
-        "direction": "Down"
+        "direction": "Down",
+        "str": "Bv"
     },
     {
         "id": 7,
         "entity": "Belt",
-        "direction": "Right"
+        "direction": "Right",
+        "str": "B>"
     },
     {
         "id": 8,
         "entity": "Belt",
-        "direction": "Top"
+        "direction": "Top",
+        "str": "B^"
     },
     {
         "id": 9,
         "entity": "Belt",
-        "direction": "Left"
+        "direction": "Left",
+        "str": "B<"
     }
 ]

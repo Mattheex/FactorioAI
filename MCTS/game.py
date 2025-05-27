@@ -1,17 +1,11 @@
 import copy
-from csv import Error
-from typing import overload
-from pyparsing import C
-from regex import B
-from traitlets import Instance
 from mcts import MCTS
 from var import CELL_NUMBER, DOWN, LEFT, RIGHT, TOP
 from entities import Belt, Case, Supplier, Vendor
-import numpy as np
 
 
 class Board:
-    def __init__(self, board = None) -> None:
+    def __init__(self, board=None) -> None:
         self.all_items = self._all_items()
         self.board = board if board else self.reset()
         self.length_penality = 1
@@ -65,7 +59,7 @@ class Board:
     def total_reward(self):
         t_r = []
         total_cell = 0
-        #print(self)
+        # print(self)
         for start_cell in self.board:
             if isinstance(start_cell, Supplier):
                 if start_cell.speed is not None:
@@ -94,11 +88,11 @@ class Board:
             return 1
         elif type(new_cell) == Belt:
             if type(previous) == Supplier:
-                reward += 0.5
+                pass
             if type(previous) == Belt:
                 if self.inverse_direction[previous.direction] == new_cell.direction:  # type: ignore
                     return -1
-                reward += 0.25
+                #reward += 0.25
             return self.reward(
                 path + new_cell.speed,
                 new_cell,
@@ -112,7 +106,6 @@ class Board:
         board = Board(copy.deepcopy(self.board))
         board.last_move = (position, item)
         board.add(item[0], position, direction=item[1])
-        # print(board)
 
         return board
 
@@ -125,25 +118,22 @@ class Board:
         for pos in empty_pos:
             for item in self.all_items:
                 actions.append(self.make_move(pos, item))
-                #print(actions[-1].last_move)
+                # print(actions[-1].last_move)
         return actions
 
     def game(self):
         mcts = MCTS()
-        for turn in range(CELL_NUMBER * CELL_NUMBER):
-            print(f"Turn {turn + 1}")
+        for i in range(100):
+            for turn in range(CELL_NUMBER * CELL_NUMBER):
+                print(f"Turn {turn + 1}")
 
-            best_move = mcts.search(self)
-            self = best_move.board
-            print(self)
+                best_move = mcts.parallel_search(self)
+                self = best_move.board
+                #print(self)
+                with open("game.txt", "a") as f:
+                    f.write(str(self) + "\n")
 
 
 # print(product)
 b = Board()
 b.game()
-"""b.add(Supplier, 2, DOWN)
-b.add(Belt, 2 + CELL_NUMBER, RIGHT)
-b.add(Belt, 2 + CELL_NUMBER + 1, RIGHT)
-b.add(Vendor, 2 + CELL_NUMBER + 1 + 1)
-print(b)
-print(b.total_reward())"""
