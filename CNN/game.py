@@ -94,6 +94,7 @@ class Board:
                 s.write(f"{self.board[x + y * CELL_NUMBER].id} ")
             s.write("\n")
         return s.getvalue()
+        
     
     def board_to_index_w_reward(self,b_index:str):
         reward = b_index.split("\n")[0].split("=")[1]

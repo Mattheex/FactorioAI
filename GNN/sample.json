@@ -1,0 +1,87 @@
+[
+    {
+        "id": 0,
+        "direction": "Down",
+        "str": "Supplier"
+    },
+    {
+        "id": 1,
+        "direction": "Right",
+        "str": "Supplier"
+    },
+    {
+        "id": 2,
+        "direction": "Top",
+        "str": "Supplier"
+    },
+    {
+        "id": 3,
+        "direction": "Left",
+        "str": "Supplier"
+    },
+    {
+        "id": 4,
+        "direction": null,
+        "str": "Vendor"
+    },
+    {
+        "id": 5,
+        "direction": "Down",
+        "str": "Belt"
+    },
+    {
+        "id": 6,
+        "direction": "Right",
+        "str": "Belt"
+    },
+    {
+        "id": 7,
+        "direction": "Top",
+        "str": "Belt"
+    },
+    {
+        "id": 8,
+        "direction": "Left",
+        "str": "Belt"
+    },
+    {
+        "id": 9,
+        "direction": "Down",
+        "str": "Splitter"
+    },
+    {
+        "id": 10,
+        "direction": "Right",
+        "str": "Splitter"
+    },
+    {
+        "id": 11,
+        "direction": "Top",
+        "str": "Splitter"
+    },
+    {
+        "id": 12,
+        "direction": "Left",
+        "str": "Splitter"
+    },
+    {
+        "id": 13,
+        "direction": "Down",
+        "str": "Transformer"
+    },
+    {
+        "id": 14,
+        "direction": "Right",
+        "str": "Transformer"
+    },
+    {
+        "id": 15,
+        "direction": "Top",
+        "str": "Transformer"
+    },
+    {
+        "id": 16,
+        "direction": "Left",
+        "str": "Transformer"
+    }
+]
