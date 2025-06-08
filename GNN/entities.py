@@ -58,7 +58,7 @@ class Case:
         if self.get_empty():
             item.set_finish(0)
         else:
-            item.set_finish(-1)
+            item.set_finish(0)
         return item
 
     def __str__(self) -> str:
@@ -113,7 +113,7 @@ class Machine:
 
     def __str__(self) -> str:
         self.map_str = {LEFT: "<", TOP: "^", DOWN: "v", RIGHT: ">", None: "o"}
-        return f"{self.name[0]}{self.map_str[self.direction["end"]]}"
+        return f"{self.name[0]}{self.map_str[self.direction['end']]}"
 
 
 class Belt(Machine):
@@ -122,7 +122,7 @@ class Belt(Machine):
 
     def action(self, item, pre_cell):
         if self.direction["start"] == pre_cell.direction["end"]:
-            item.set_finish(-1)
+            item.set_finish(0)
             return item
         return super().action(item)
 
@@ -133,7 +133,7 @@ class Supplier(Machine):
 
     def action(self, item=None, _=None):
         if item:
-            item.set_finish(-1)
+            item.set_finish(0)
             return item
         else:
             return Item(coor=self.coor + self.speed, quantity=self.ratio, object=COPPER, pre_cell=self)
@@ -158,7 +158,7 @@ class Transformer(Machine):
             item = super().action(item)
             item.transform(COPPER_CABLE)
         else:
-            item.set_finish(-1)
+            item.set_finish(0)
         return item
 
 

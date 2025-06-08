@@ -109,11 +109,11 @@ class Board:
                 #print(f"reward end {cell.coor} {item} {r}")
             if not cell.get_empty():
                 total_cell += 0.02
-        return sum(t_r) - total_cell
+        return sum(t_r)
 
     def reward(self, item: Item, pre_cell, length):
         if item.coor >= self.max_path or item.coor < 0 or length > self.max_path:
-            return -1 * item.quantity
+            return 0
 
         #print(f"reward {pre_cell} {item} {length}")
 

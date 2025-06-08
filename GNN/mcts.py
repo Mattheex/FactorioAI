@@ -29,10 +29,10 @@ class MCTS:
 
         self.root = TreeNode(initial_state)
 
-        iterations = 100
+        iterations = 25
         # Perform the MCTS iterations
         for i in range(iterations):  # Number of iterations
-            if i % (iterations/25) == 0:
+            if i % (round(iterations/3)) == 0:
                 print("Iteration: ", i)
             # Perform the MCTS iteration
             node = self.selection(self.root)
@@ -52,7 +52,7 @@ class MCTS:
     def selection(self, node:TreeNode):
         while not node.terminal:
             if node.fully_expanded:
-                node = self.best_child(node)
+                node = self.best_child(node,exploration_weight=1.5)
             else:
                 return self.expand(node)
         return node

@@ -3,9 +3,6 @@ from io import StringIO
 import os
 from random import choice, random
 import threading
-
-from mcts import MCTS
-from var import CELL_NUMBER
 from game import Board
 
 
@@ -78,4 +75,4 @@ def game(num_threads=4, total_boards=1000):
 
     print(f"All {total_boards} boards generated successfully")
 
-game(total_boards=1000)
+game(total_boards=2000,num_threads=-1)
